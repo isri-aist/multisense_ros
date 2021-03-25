@@ -54,11 +54,13 @@ int main(int    argc,
     std::string sensor_ip;
     std::string tf_prefix;
     int         sensor_mtu;
+    int         trigger_source;
 
 
     nh_private_.param<std::string>("sensor_ip", sensor_ip, "10.66.171.21");
     nh_private_.param<std::string>("tf_prefix", tf_prefix, "multisense");
     nh_private_.param<int>("sensor_mtu", sensor_mtu, 7200);
+    nh_private_.param<int>("trigger_source", trigger_source, Trigger_Internal);
 
     Channel *d = NULL;
 
@@ -77,6 +79,17 @@ int main(int    argc,
                       sensor_mtu, Channel::statusString(status));
             Channel::Destroy(d);
             return -3;
+        }
+
+        if (trigger_source != Trigger_Internal) {
+          trigger_source = Trigger_External;
+        }
+        status = d->setTriggerSource(trigger_source);
+        if (Status_Ok != status) {
+          ROS_ERROR("multisense_ros: failed to set trigger source to %d: %s",
+                    trigger_source, Channel::statusString(status));
+          Channel::Destroy(d);
+          return -3;
         }
 
         //

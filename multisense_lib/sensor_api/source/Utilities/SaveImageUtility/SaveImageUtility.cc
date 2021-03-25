@@ -183,6 +183,7 @@ int main(int    argc,
 {
     std::string currentAddress = "10.66.171.21";
     int32_t mtu = 7200;
+    TriggerSource triggerSource = Trigger_Internal;
 
 #if WIN32
     SetConsoleCtrlHandler (signalHandler, TRUE);
@@ -195,10 +196,11 @@ int main(int    argc,
 
     int c;
 
-    while(-1 != (c = getopt(argc, argvPP, "a:m:")))
+    while(-1 != (c = getopt(argc, argvPP, "a:m:t")))
         switch(c) {
         case 'a': currentAddress = std::string(optarg);    break;
         case 'm': mtu            = atoi(optarg);           break;
+        case 't': triggerSource  = Trigger_External;       break;
         default: usage(*argvPP);                           break;
         }
 
@@ -268,7 +270,7 @@ int main(int    argc,
     //
     // Change trigger source
 
-    status = channelP->setTriggerSource(Trigger_Internal);
+    status = channelP->setTriggerSource(triggerSource);
     if (Status_Ok != status) {
 		std::cerr << "Failed to set trigger source: " << Channel::statusString(status) << std::endl;
         goto clean_out;
